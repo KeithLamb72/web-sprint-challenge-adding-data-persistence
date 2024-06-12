@@ -1,20 +1,29 @@
 // build your `/api/tasks` router here
-const db = require('../../data/dbConfig')
+const express = require('express')
+const Task = require('./model')
 
-function getAll() {
-    return db('tasks')
-      .join('projects', 'projects.project_id', 'tasks.project_id')
-      .select('tasks.*', 'projects.project_name', 'projects.project_description')
-}
+const router = express.Router()
 
-function create(task) {
-    return db('tasks').insert(task)
-      .then(([id]) => {
-        return db('tasks').where({ task_id: id }).first()
+router.get('/', (req, res) => {
+    Task.getAll()
+      .then(tasks => {
+        res.status(200).json(tasks)
       })
-}
+      .catch(err => {
+        res.status(500).json({ message: 'Failed to get tasks' })
+      })
+})
 
-module.exports = {
-    getAll,
-    create
-}
+router.post('/', (req, res) => {
+    const taskData = req.body
+
+    Task.create(taskData)
+      .then(task => {
+        res.status(201).json(task)
+      })
+      .catch(err => {
+        res.status(500).json({ message: 'Failed to create task'})
+      })
+})
+
+module.exports = router
