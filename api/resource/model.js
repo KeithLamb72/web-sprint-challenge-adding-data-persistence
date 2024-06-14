@@ -7,11 +7,18 @@ function getAll() {
 
 function create(resource) {
   return db('resources').insert(resource)
-    .then(([id]) => getById(id))
+    .then(([id]) => {
+      console.log('Inserted resource ID:', id); // Log inserted ID
+      return getById(id);
+    })
+    .catch(err => {
+      console.error('Error inserting resource:', err);
+      throw err;
+    });
 }
 
 function getById(id) {
-  return db('resources').where({ id }).first()
+  return db('resources').where({ resource_id: id }).first()
 }
 
 module.exports = {
